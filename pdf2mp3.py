@@ -6,6 +6,17 @@ from pydub import AudioSegment
 from pydub.playback import play
 from tkinter.filedialog import askopenfilename, asksaveasfilename
 
+def speed_change(sound, speed=1.0):
+    # Manually override the frame_rate. This tells the computer how many
+    # samples to play per second
+    sound_with_altered_frame_rate = sound._spawn(sound.raw_data, overrides={
+         "frame_rate": int(sound.frame_rate * speed)
+      })
+     # convert the sound with altered frame rate to a standard frame rate
+     # so that regular playback programs will work right. They often only
+     # know how to play audio at standard frame rate (like 44.1k)
+    return sound_with_altered_frame_rate.set_frame_rate(sound.frame_rate)
+
 def run(arg= ""):
     Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
 
@@ -22,7 +33,7 @@ def run(arg= ""):
         print("Empty")
         return
 
-    string_of_text = pdf.replace("\n", "")
+    string_of_text = pdf.replace("\n", "").replace("i.e.", "example,").replace("e.g.", "example,")
     print(string_of_text)
 
     final_file = gTTS(text=string_of_text, lang='en-us')  # pt-br, check language support gtts.lang.tts_langs()
@@ -35,7 +46,7 @@ def run(arg= ""):
     final_file.save(filename)  # save file to computer
     
     audio = AudioSegment.from_mp3(filename)
-    play(audio)
+    play(speed_change(audio, 1.15))    
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
